@@ -7,83 +7,53 @@ Created on Tue Mar 17 16:03:41 2020
 """
 
 #学生疫情上报系统     　　　　　　　　　｜
+import xlwt
 
-
-def main():
-    student_info = []
-    while True:
-        # print(student_info)
-        meun()
-        number = input("请输入选项：")
-        if number == '1':
-            student_info = add_student_info()
-        elif number == '2':
-            show_student_info(student_info)
-        elif number == '3':
-            try:
-                student_info.remove(del_student_info(student_info))
-            except Exception as e:
-                # 学生姓名不匹配
-                print(e)            
-        elif number == '4':
-            try:                
-                student = mod_student_info(student_info)
-            except Exception as e:
-                # 学生姓名不匹配
-                print(e)
-            else:
-                # 首先按照根据输入信息的名字，从列表中删除该生信息，然后重新添加该学生最新信息
-                student_info.remove(del_student_info(student_info,del_name = student.get("name")))  
-                student_info.append(student)
-        elif number == '5':
-            save_info(student_info)
-        elif number == '6':
-            student_info = read_info()
-        else:
-            break
-        input("回车显示菜单")
-
-main()
+# student_info.py  　　　　　　　　　
 
 
 def meun():
-    menu_info = '''
-１）学生每日信息上报                           
-２）显示所有学生的填写的信息                     
-３）删除学生信息                           
-４）修改学生信息                                           
-5）保存学生信息到文件   
-6）从文件中读取数据
-退出：按enter                 
-
+    menu_info = '''＋－－－－－－－－－－－－－－－－－－－－－－＋
+｜ １）添加学生信息                           
+｜ ２）显示所有学生的信息                   
+｜ ３）删除学生信息                           
+｜ ４）修改学生信息                           
+｜ ５）按学生成绩高－低显示学生信息           
+｜ ６）按学生成绩低－高显示学生信息           
+｜ ７）按学生年龄高－低显示学生信息           
+｜ ８）按学生年龄低－高显示学生信息           
+｜ ９）保存学生信息到文件（students.txt)      
+｜ １０）从文件中读取数据（students.txt)      
+｜ 退出：其他任意按键＜回车＞                 
+＋－－－－－－－－－－－－－－－－－－－－－－＋
 '''
     print(menu_info)
 
 
 # 以下二个函数用于sorted排序，　key的表达式函数
-def get_location(*l):
+def get_age(*l):
     for x in l:
-        return x.get("location")
-def get_condition(*l):
+        return x.get("age")
+def get_score(*l):
     for x in l:
-        return x.get("condition")
+        return x.get("score")
         
 # １）添加学生信息
 def add_student_info():
     L = []
-    while True:1
-        n = input("请输入你的名字：")
+    while True:
+        n = input("请输入名字：")
         if not n:  # 名字为空　跳出循环
             break
         try:
             a = str(input("是否居住在武汉："))
-            s = str(input("是否被传染肺炎："))
+            s = str(input("是否感染新冠肺炎："))
         except:
-            print("请输入是或者否")
+            print("输入无效，不是整形数值．．．．重新录入信息")
             continue
-        info = {"name":n,"location":a,"condition":s}
+        info = {"name":n,"age":a,"score":s}
         L.append(info)
-    print("信息上报完毕！！！")
+    print("学生信息录入完毕！！！")
     return L
 
 # ２）显示所有学生的信息
@@ -91,9 +61,9 @@ def show_student_info(student_info):
     if not student_info:
         print("无数据信息．．．．．")
         return
-    print("名字".center(8),"是否居住在武汉".center(8),"是否为新冠肺炎患者".center(8))
+    print("名字".center(8),"年龄".center(4),"成绩".center(4))
     for info in student_info:
-        print(info.get("name").center(10),str(info.get("location")).center(10),str(info.get("condition")).center(10))
+        print(info.get("name").center(10),str(info.get("age")).center(4),str(info.get("score")).center(4))
 
 # ３）删除学生信息
 def del_student_info(student_info,del_name = ''):
@@ -109,14 +79,37 @@ def mod_student_info(student_info):
     mod_name = input("请输入修改的学生姓名：")
     for info in student_info:
         if mod_name == info.get("name"):
-            a = str(input("请输入是否居住于武汉："))
-            s = str(input("请输入是否为肺炎患者："))
-            info = {"name":mod_name,"location":a,"condition":s}
+            a = int(input("请输入年龄："))
+            s = int(input("请输入成绩："))
+            info = {"name":mod_name,"age":a,"score":s}
             return info
     raise IndexError("学生信息不匹配,没有找到%s" %mod_name)
 
+# ５）按学生成绩高－低显示学生信息
+def score_reduce(student_info):
+    print("按学生成绩高－低显示")
+    mit = sorted(student_info ,key = get_score,reverse = True)
+    show_student_info(mit)
 
-# 5）保存学生信息到文件（students.txt)
+# ６）按学生成绩低－高显示学生信息
+def score_rise(student_info):
+    print("按学生成绩低－高显示")
+    mit = sorted(student_info ,key = get_score)
+    show_student_info(mit)
+
+# ７）按学生年龄高－低显示学生信息
+def age_reduce(student_info):   
+    print("按学生年龄高－低显示：")
+    mit = sorted(student_info ,key = get_age,reverse = True)
+    show_student_info(mit)
+
+# ８）按学生年龄低－高显示学生信息
+def age_rise(student_info): 
+    print("按学生年龄低－高显示：")
+    mit = sorted(student_info ,key = get_age)
+    show_student_info(mit)
+
+# ９）保存学生信息到文件（students.txt)
 def save_info(student_info):
     try:
         students_txt = open("students.txt","w")     # 以写模式打开，并清空文件内容
@@ -126,7 +119,7 @@ def save_info(student_info):
         students_txt.write(str(info)+"\n")          # 按行存储，添加换行符
     students_txt.close()
 
-# 6）从文件中读取数据（students.txt) 
+# １０）从文件中读取数据（students.txt) 
 def read_info():
     old_info = []
     try:
@@ -161,4 +154,46 @@ def read_info():
     students_txt.close()  
     return old_info   
 
+def main():
+    student_info = []
+    while True:
+        # print(student_info)
+        meun()
+        number = input("请输入选项：")
+        if number == '1':
+            student_info = add_student_info()
+        elif number == '2':
+            show_student_info(student_info)
+        elif number == '3':
+            try:
+                student_info.remove(del_student_info(student_info))
+            except Exception as e:
+                # 学生姓名不匹配
+                print(e)            
+        elif number == '4':
+            try:                
+                student = mod_student_info(student_info)
+            except Exception as e:
+                # 学生姓名不匹配
+                print(e)
+            else:
+                # 首先按照根据输入信息的名字，从列表中删除该生信息，然后重新添加该学生最新信息
+                student_info.remove(del_student_info(student_info,del_name = student.get("name")))  
+                student_info.append(student)
+        elif number == '5':
+            score_reduce(student_info)
+        elif number == '6':
+            score_rise(student_info)
+        elif number == '7':
+            age_reduce(student_info)
+        elif number == '8':
+            age_rise(student_info)
+        elif number == '9':
+            save_info(student_info)
+        elif number == '10':
+            student_info = read_info()
+        else:
+            break
+        input("回车显示菜单")
 
+main()
